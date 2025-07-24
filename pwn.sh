@@ -54,7 +54,6 @@ echo "$PASSWORD" | sudo -S DEBIAN_FRONTEND=noninteractive apt update && echo "$P
 print_status "Installing required packages..."
 echo "$PASSWORD" | sudo -S DEBIAN_FRONTEND=noninteractive apt -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" install -y \
     kitty \
-    neovim \
     tmux \
     git \
     curl \
@@ -64,6 +63,31 @@ echo "$PASSWORD" | sudo -S DEBIAN_FRONTEND=noninteractive apt -o Dpkg::Options::
     zsh \
     build-essential \
     fzf
+
+# Remove existing neovim and install latest version from GitHub
+print_status "Removing existing neovim installation..."
+echo "$PASSWORD" | sudo -S apt remove -y neovim nvim 2>/dev/null || true
+echo "$PASSWORD" | sudo -S rm -rf /opt/nvim 2>/dev/null || true
+
+print_status "Installing latest neovim from GitHub releases..."
+TEMP_DIR=$(mktemp -d)
+cd "$TEMP_DIR"
+
+# Download latest neovim
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+
+# Extract to /opt
+echo "$PASSWORD" | sudo -S tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+
+# Create symlink for global access
+echo "$PASSWORD" | sudo -S ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
+echo "$PASSWORD" | sudo -S ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/neovim
+
+# Clean up
+cd "$HOME"
+rm -rf "$TEMP_DIR"
+
+print_success "Latest neovim installed successfully"
 
 # Install Oh My Zsh if not already installed
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
@@ -143,8 +167,23 @@ if [ -d "$HOME/.config/nvim" ]; then
     mv "$HOME/.config/nvim" "$HOME/.config/nvim.backup.$(date +%Y%m%d_%H%M%S)"
 fi
 
+# Clone NvChad starter and fix compatibility issues
 git clone https://github.com/NvChad/starter ~/.config/nvim
-print_success "NvChad installed"
+
+# Fix the lua compatibility issue
+print_status "Fixing NvChad lua compatibility..."
+if [ -f "$HOME/.config/nvim/init.lua" ]; then
+    # Create a backup of the original init.lua
+    cp "$HOME/.config/nvim/init.lua" "$HOME/.config/nvim/init.lua.backup"
+    
+    # Fix the vim.loop.uv issue by replacing it with vim.uv
+    sed -i 's/vim\.loop\.uv/vim.uv/g' "$HOME/.config/nvim/init.lua"
+    sed -i 's/vim\.loop/vim.uv/g' "$HOME/.config/nvim/init.lua"
+    
+    print_success "Fixed NvChad lua compatibility issues"
+fi
+
+print_success "NvChad installed and configured"
 
 # Clone dotfiles
 print_status "Cloning dotfiles from https://github.com/p3ta00/PWNBOX.git..."
