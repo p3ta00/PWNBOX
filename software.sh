@@ -95,6 +95,51 @@ else
     fi
 fi
 
+# Install Discord
+print_status "Installing Discord..."
+
+# Check if Discord is already installed
+if command -v discord &> /dev/null; then
+    print_warning "Discord is already installed"
+    read -p "Do you want to update to the latest version? (y/n): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_status "Skipping Discord installation"
+        INSTALL_DISCORD=false
+    else
+        INSTALL_DISCORD=true
+    fi
+else
+    INSTALL_DISCORD=true
+fi
+
+if [[ "$INSTALL_DISCORD" == "true" ]]; then
+    print_status "Downloading latest Discord..."
+    
+    # Create temporary directory
+    TEMP_DIR=$(mktemp -d)
+    cd "$TEMP_DIR"
+    
+    # Discord always provides the latest version at this URL
+    DISCORD_URL="https://discord.com/api/download?platform=linux&format=deb"
+    
+    print_status "Downloading Discord from: $DISCORD_URL"
+    curl -L -o discord.deb "$DISCORD_URL"
+    
+    # Install Discord
+    print_status "Installing Discord..."
+    sudo dpkg -i discord.deb
+    
+    # Fix any dependency issues
+    sudo apt install -f -y
+    
+    # Clean up
+    cd - > /dev/null
+    rm -rf "$TEMP_DIR"
+    
+    print_status "Discord installed successfully"
+fi
+
 # Install Obsidian
 print_status "Installing Obsidian..."
 
@@ -174,6 +219,13 @@ else
     print_error "RustScan not found in PATH. You may need to restart your shell or run 'source ~/.cargo/env'"
 fi
 
+echo "Discord:"
+if command -v discord &> /dev/null; then
+    print_status "Discord is installed and available"
+else
+    print_warning "Discord command not found, but package should be installed"
+fi
+
 echo "Obsidian:"
 if command -v obsidian &> /dev/null; then
     print_status "Obsidian is installed and available"
@@ -185,3 +237,4 @@ print_status "Installation script completed!"
 echo
 print_status "Note: You may need to restart your terminal or run 'source ~/.cargo/env' to use cargo tools"
 print_status "You can launch Obsidian from your applications menu or by running 'obsidian' in terminal"
+print_status "You can launch Discord from your applications menu or by running 'discord' in terminal"
