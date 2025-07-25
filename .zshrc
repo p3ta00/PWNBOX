@@ -11,6 +11,7 @@ source $ZSH/oh-my-zsh.sh
 # Alias
 #alias clear="printf '\033[2J\033[3J\033[H\033Ptmux;\033\033_Ga=d\033\033\\'"
 alias zsource='source ~/.zshrc'
+alias gitsync='~/.local/bin/hacking-autosync.sh'
 
 tmux() {
     command tmux "$@"
