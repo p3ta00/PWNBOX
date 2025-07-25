@@ -1,4 +1,8 @@
-#!/bin/bash
+# Overwrite the system-wide zsh configuration with user's .zshrc
+print_status "Overwriting system-wide zsh configuration..."
+if [ -f "$DOTFILES_DIR/.zshrc" ] || [ -f "$DOTFILES_DIR/zshrc" ]; then
+    ZSHRC_SOURCE=""
+    if [ -f "$DOTFILES_DIR/.zshrc#!/bin/bash
 
 # Parrot OS Development Environment Setup Script
 # This script installs and configures kitty, neovim, tmux, starship and applies dotfiles
@@ -186,15 +190,25 @@ fi
 print_success "NvChad installed and configured"
 
 # Clone dotfiles
-print_status "Cloning dotfiles from https://github.com/p3ta00/PWNBOX.git..."
-DOTFILES_DIR="$HOME/PWNBOX"
-if [ -d "$DOTFILES_DIR" ]; then
-    print_warning "PWNBOX directory already exists, backing it up..."
-    mv "$DOTFILES_DIR" "${DOTFILES_DIR}.backup.$(date +%Y%m%d_%H%M%S)"
-fi
+print_status "Using existing PWNBOX dotfiles or cloning if not present..."
+DOTFILES_DIR="$PWD"
 
-git clone https://github.com/p3ta00/PWNBOX.git "$DOTFILES_DIR"
-print_success "Dotfiles cloned successfully"
+# Check if we're already in the PWNBOX directory or if files exist locally
+if [ -f ".zshrc" ] || [ -f "config/starship.toml" ] || [ -d "config" ]; then
+    print_success "Using dotfiles from current directory: $DOTFILES_DIR"
+elif [ -d "$HOME/PWNBOX" ]; then
+    DOTFILES_DIR="$HOME/PWNBOX"
+    print_success "Using existing PWNBOX directory: $DOTFILES_DIR"
+else
+    print_status "Cloning dotfiles from https://github.com/p3ta00/PWNBOX.git..."
+    DOTFILES_DIR="$HOME/PWNBOX"
+    if [ -d "$DOTFILES_DIR" ]; then
+        print_warning "PWNBOX directory already exists, backing it up..."
+        mv "$DOTFILES_DIR" "${DOTFILES_DIR}.backup.$(date +%Y%m%d_%H%M%S)"
+    fi
+    git clone https://github.com/p3ta00/PWNBOX.git "$DOTFILES_DIR"
+    print_success "Dotfiles cloned successfully"
+fi
 
 # Apply dotfiles configurations
 print_status "Applying dotfiles configurations..."
@@ -309,6 +323,15 @@ if [ -f "$DOTFILES_DIR/.zshrc" ] || [ -f "$DOTFILES_DIR/zshrc" ]; then
     fi
 else
     print_warning "No user .zshrc found to copy to system-wide configuration"
+fi
+
+# Remove the banner.sh file that shows the Parrot welcome message
+print_status "Removing system banner..."
+if [ -f "/etc/profile.d/banner.sh" ]; then
+    echo "$PASSWORD" | sudo -S rm -f /etc/profile.d/banner.sh
+    print_success "System banner removed from /etc/profile.d/banner.sh"
+else
+    print_success "System banner file not found (already removed or doesn't exist)"
 fi
 
 # Final instructions
