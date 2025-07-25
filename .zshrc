@@ -6,7 +6,7 @@ eval "$(starship init zsh)"
 export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=( git zsh-syntax-highlighting zsh-autosuggestions )
-#source $ZSH/oh-my-zsh.sh
+source $ZSH/oh-my-zsh.sh
 
 # Alias
 #alias clear="printf '\033[2J\033[3J\033[H\033Ptmux;\033\033_Ga=d\033\033\\'"
