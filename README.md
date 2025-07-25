@@ -6,7 +6,7 @@
 ```
 ./tools.sh
 ```
-Update the github list to add more tooling
+Update the github list (tools.txt) to add more tooling
 
 ```
 ./software.sh
