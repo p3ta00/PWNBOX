@@ -33,13 +33,16 @@ if [[ ! -f "tools.txt" ]]; then
     exit 1
 fi
 
-# Create tools directory if it doesn't exist
-if [[ ! -d "tools" ]]; then
-    print_status "Creating tools directory..."
-    mkdir tools
-    print_success "Tools directory created"
+# Set the target directory for tools folder
+TOOLS_DIR="$HOME/tools"
+
+# Create tools directory if it doesn't exist in home directory
+if [[ ! -d "$TOOLS_DIR" ]]; then
+    print_status "Creating tools directory at $TOOLS_DIR..."
+    mkdir -p "$TOOLS_DIR"
+    print_success "Tools directory created at $TOOLS_DIR"
 else
-    print_status "Tools directory already exists"
+    print_status "Tools directory already exists at $TOOLS_DIR"
 fi
 
 # Read the tools.txt file and process each line
@@ -66,13 +69,13 @@ while IFS= read -r repo_url; do
     repo_name=$(basename "$repo_url" .git)
     
     # Check if directory already exists
-    if [[ -d "tools/$repo_name" ]]; then
-        print_warning "Directory tools/$repo_name already exists, skipping..."
+    if [[ -d "$TOOLS_DIR/$repo_name" ]]; then
+        print_warning "Directory $TOOLS_DIR/$repo_name already exists, skipping..."
         continue
     fi
     
-    # Clone the repository
-    if git clone "$repo_url" "tools/$repo_name"; then
+    # Clone the repository into the tools directory
+    if git clone "$repo_url" "$TOOLS_DIR/$repo_name"; then
         print_success "Successfully cloned $repo_name"
         success_count=$((success_count + 1))
     else
