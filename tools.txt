@@ -1,0 +1,2 @@
+https://github.com/r3motecontrol/Ghostpack-CompiledBinaries.git
+https://github.com/int0x33/nc.exe.git
