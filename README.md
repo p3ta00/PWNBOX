@@ -20,9 +20,10 @@ Git Sync
 ```
 Edit the script
 ```
-GIT_NAME="p3ta"
-GIT_EMAIL="p3ta0.0@pm.me"
-GITHUB_USERNAME="p3ta00"  # Your GitHub username
+# Configuration - EDIT THESE VALUES
+GIT_NAME="Enter"
+GIT_EMAIL="enter@pm.me"
+GITHUB_USERNAME="enter"  # Your GitHub username
 FOLDER_PATH="$HOME/hacking"
 REPO_NAME="hacking"
 ```
