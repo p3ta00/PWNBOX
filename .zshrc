@@ -11,10 +11,6 @@ plugins=( git zsh-syntax-highlighting zsh-autosuggestions )
 # Alias
 #alias clear="printf '\033[2J\033[3J\033[H\033Ptmux;\033\033_Ga=d\033\033\\'"
 alias zsource='source ~/.zshrc'
-alias GitTools='~/tools/GitTools.sh'
-alias burppro='burpsuitepro >/dev/null 2>&1 & disown'
-alias blackarch='distrobox enter blackarch'
-alias evil-winrm='evil-winrm 2> >(grep -v "warning:" >&2)'
 
 tmux() {
     command tmux "$@"
