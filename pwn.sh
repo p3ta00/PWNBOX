@@ -1,8 +1,4 @@
-# Overwrite the system-wide zsh configuration with user's .zshrc
-print_status "Overwriting system-wide zsh configuration..."
-if [ -f "$DOTFILES_DIR/.zshrc" ] || [ -f "$DOTFILES_DIR/zshrc" ]; then
-    ZSHRC_SOURCE=""
-    if [ -f "$DOTFILES_DIR/.zshrc#!/bin/bash
+#!/bin/bash
 
 # Parrot OS Development Environment Setup Script
 # This script installs and configures kitty, neovim, tmux, starship and applies dotfiles
@@ -75,6 +71,7 @@ echo "$PASSWORD" | sudo -S rm -rf /opt/nvim 2>/dev/null || true
 
 print_status "Installing latest neovim from GitHub releases..."
 TEMP_DIR=$(mktemp -d)
+ORIGINAL_DIR="$PWD"
 cd "$TEMP_DIR"
 
 # Download latest neovim
@@ -87,8 +84,8 @@ echo "$PASSWORD" | sudo -S tar -C /opt -xzf nvim-linux-x86_64.tar.gz
 echo "$PASSWORD" | sudo -S ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
 echo "$PASSWORD" | sudo -S ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/neovim
 
-# Clean up
-cd "$HOME"
+# Return to original directory before cleanup
+cd "$ORIGINAL_DIR"
 rm -rf "$TEMP_DIR"
 
 print_success "Latest neovim installed successfully"
@@ -115,6 +112,7 @@ mkdir -p "$FONT_DIR"
 # Download and install the font
 FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/CascadiaCode.zip"
 TEMP_DIR=$(mktemp -d)
+ORIGINAL_DIR="$PWD"
 cd "$TEMP_DIR"
 
 print_status "Downloading CaskaydiaCove Nerd Font..."
@@ -132,8 +130,8 @@ fc-cache -fv
 
 print_success "CaskaydiaCove Nerd Font installed"
 
-# Clean up
-cd "$HOME"
+# Return to original directory before cleanup
+cd "$ORIGINAL_DIR"
 rm -rf "$TEMP_DIR"
 
 # Install zsh plugins
@@ -189,26 +187,18 @@ fi
 
 print_success "NvChad installed and configured"
 
-# Clone dotfiles
-print_status "Using existing PWNBOX dotfiles or cloning if not present..."
-DOTFILES_DIR="$PWD"
+# Use dotfiles from current working directory
+print_status "Debugging directory detection..."
+print_status "PWD: $PWD"
+print_status "BASH_SOURCE: ${BASH_SOURCE[0]}"
+print_status "Script directory: $(dirname "${BASH_SOURCE[0]}")"
+print_status "Current working directory: $(pwd)"
 
-# Check if we're already in the PWNBOX directory or if files exist locally
-if [ -f ".zshrc" ] || [ -f "config/starship.toml" ] || [ -d "config" ]; then
-    print_success "Using dotfiles from current directory: $DOTFILES_DIR"
-elif [ -d "$HOME/PWNBOX" ]; then
-    DOTFILES_DIR="$HOME/PWNBOX"
-    print_success "Using existing PWNBOX directory: $DOTFILES_DIR"
-else
-    print_status "Cloning dotfiles from https://github.com/p3ta00/PWNBOX.git..."
-    DOTFILES_DIR="$HOME/PWNBOX"
-    if [ -d "$DOTFILES_DIR" ]; then
-        print_warning "PWNBOX directory already exists, backing it up..."
-        mv "$DOTFILES_DIR" "${DOTFILES_DIR}.backup.$(date +%Y%m%d_%H%M%S)"
-    fi
-    git clone https://github.com/p3ta00/PWNBOX.git "$DOTFILES_DIR"
-    print_success "Dotfiles cloned successfully"
-fi
+DOTFILES_DIR="$(pwd)"
+print_success "Using dotfiles from working directory: $DOTFILES_DIR"
+
+print_status "Contents of dotfiles directory:"
+ls -la "$DOTFILES_DIR"
 
 # Apply dotfiles configurations
 print_status "Applying dotfiles configurations..."
@@ -216,23 +206,6 @@ print_status "Applying dotfiles configurations..."
 # Create necessary directories
 mkdir -p "$HOME/.config/kitty"
 mkdir -p "$HOME/.config"
-
-# Copy configuration files from different possible locations
-if [ -f "$DOTFILES_DIR/config/kitty/kitty.conf" ]; then
-    cp "$DOTFILES_DIR/config/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
-    print_success "Kitty configuration applied from config/kitty/kitty.conf"
-elif [ -f "$DOTFILES_DIR/config/kitty.conf" ]; then
-    cp "$DOTFILES_DIR/config/kitty.conf" "$HOME/.config/kitty/kitty.conf"
-    print_success "Kitty configuration applied from config/kitty.conf"
-elif [ -f "$DOTFILES_DIR/kitty/kitty.conf" ]; then
-    cp "$DOTFILES_DIR/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
-    print_success "Kitty configuration applied from kitty/kitty.conf"
-elif [ -f "$DOTFILES_DIR/kitty.conf" ]; then
-    cp "$DOTFILES_DIR/kitty.conf" "$HOME/.config/kitty/kitty.conf"
-    print_success "Kitty configuration applied from root kitty.conf"
-else
-    print_warning "No kitty.conf found in dotfiles"
-fi
 
 # Copy all files from config/kitty/ directory if it exists
 if [ -d "$DOTFILES_DIR/config/kitty" ]; then
@@ -284,6 +257,37 @@ EOF
     print_success "Basic starship configuration created"
 fi
 
+print_status "Looking for tmux configuration..."
+print_status "Files in PWNBOX directory:"
+ls -la "$DOTFILES_DIR" | grep -E "(tmux|\.tmux)"
+
+if [ -f "$DOTFILES_DIR/.tmux.conf" ]; then
+    print_status "Found .tmux.conf, copying to home directory..."
+    cp "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
+    print_success "Tmux configuration applied from .tmux.conf"
+    ls -la "$HOME/.tmux.conf"
+elif [ -f "$DOTFILES_DIR/tmux.conf" ]; then
+    cp "$DOTFILES_DIR/tmux.conf" "$HOME/.tmux.conf"
+    print_success "Tmux configuration applied from tmux.conf"
+elif [ -f "$DOTFILES_DIR/.tmux" ]; then
+    cp "$DOTFILES_DIR/.tmux" "$HOME/.tmux.conf"
+    print_success "Tmux configuration applied from .tmux"
+else
+    print_warning "No tmux configuration found in dotfiles"
+    print_status "Available files in $DOTFILES_DIR:"
+    ls -la "$DOTFILES_DIR"
+fi
+
+if [ -f "$DOTFILES_DIR/.zshrc" ]; then
+    cp "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+    print_success "Zsh configuration applied"
+elif [ -f "$DOTFILES_DIR/zshrc" ]; then
+    cp "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
+    print_success "Zsh configuration applied"
+else
+    print_warning "No .zshrc found in dotfiles"
+fi
+
 # Set zsh as default shell if not already
 if [ "$SHELL" != "$(which zsh)" ]; then
     print_status "Setting zsh as default shell..."
@@ -327,12 +331,27 @@ fi
 
 # Remove the banner.sh file that shows the Parrot welcome message
 print_status "Removing system banner..."
+print_status "Contents of /etc/profile.d/:"
+ls -la /etc/profile.d/ 2>/dev/null || print_status "Cannot access /etc/profile.d/"
+
+print_status "Attempting to remove banner file..."
+echo "$PASSWORD" | sudo -S rm -f /etc/profile.d/banner.sh 2>/dev/null || true
+
+print_status "Checking if banner was removed..."
 if [ -f "/etc/profile.d/banner.sh" ]; then
-    echo "$PASSWORD" | sudo -S rm -f /etc/profile.d/banner.sh
-    print_success "System banner removed from /etc/profile.d/banner.sh"
+    print_warning "Banner file still exists, trying alternative removal..."
+    echo "$PASSWORD" | sudo -S bash -c "rm -f /etc/profile.d/banner.sh"
+    if [ ! -f "/etc/profile.d/banner.sh" ]; then
+        print_success "System banner successfully removed"
+    else
+        print_error "Failed to remove banner file - it may not exist or require different permissions"
+    fi
 else
-    print_success "System banner file not found (already removed or doesn't exist)"
+    print_success "System banner removed or was not present"
 fi
+
+print_status "Final check of /etc/profile.d/:"
+ls -la /etc/profile.d/ 2>/dev/null || true
 
 # Final instructions
 print_success "Installation completed successfully!"
