@@ -11,7 +11,7 @@ Update the github list (tools.txt) to add more tooling
 ```
 ./software.sh
 ```
-This will install software such as cargo and rustscan. It will also put obsidian and discord on the pwnbox. Use at your descretion because it is a pwnbox. 
+This will install software such as cargo and rustscan. It will also put obsidian and discord on the pwnbox. Use at your descretion because it is a pwnbox. After installation close your terminal and reopen it. I will fix this later.
 
 Git Sync
 
