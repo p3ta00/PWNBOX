@@ -29,4 +29,6 @@ REPO_NAME="hacking"
 ```
 Edit the script and and run it on both machines. It will create a ~/.local/bin/hacking-autosync.sh script that can be ran manually or every 30 min to look for changes. Ensure that your github is updated with the folder that you want to sync. This will allow you to work in both environments and maintain all of the files that you had previously.
 
+Back you your working directory on your main machine, this feature is still a in-progress. I have not lost data yet, but be safe.
+
 <img width="3387" height="1315" alt="image" src="https://github.com/user-attachments/assets/8cc18177-2a40-4e6f-a977-a7b3a0c10c14" />
