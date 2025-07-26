@@ -1,4 +1,4 @@
-store  these in your /my_data folder if your maintaining your own version. This will keep the files persistent. i believe there is an auto run script that I'm going to work on next, to provide 100% automation. 
+Store  these in your /my_data folder if your maintaining your own version. This will keep the files persistent. i believe there is an auto run script that I'm going to work on next, to provide 100% automation. 
 
 # Install
 ```
