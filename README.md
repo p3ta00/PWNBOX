@@ -2,6 +2,8 @@
 ```
 ./pwn.sh {sudo password}
 ```
+Once complete use kitty as your terminal.
+
 # Configure
 ```
 ./tools.sh
