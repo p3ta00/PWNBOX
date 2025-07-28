@@ -22,7 +22,7 @@ Git Sync
 ```
 ./git.sh
 ```
-Edit the script
+Edit the script ( this has been changed you must now add in your token )
 ```
 # Configuration - EDIT THESE VALUES
 GIT_NAME="Enter"
