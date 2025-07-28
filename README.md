@@ -1,6 +1,11 @@
 Store  these in your /my_data folder if your maintaining your own version. This will keep the files persistent. I believe there is an auto run script that I'm going to work on next, to provide 100% automation. 
+# install
+This will install all scripts, only use if you want everything or else just install each independantly.
+```
+./install.sh
+```
 
-# Install
+# Dot Files
 ```
 ./pwn.sh {sudo password}
 ```
