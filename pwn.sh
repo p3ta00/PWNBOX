@@ -1,19 +1,6 @@
 #!/bin/bash
 
-# Parrot OS Development Environment Setup Script
-# This script installs and configures kitty, neovim, tmux, starship and applies dotfiles
-# Usage: ./setup_parrot.sh [password]
-
 set -e
-
-# Get password from command line argument
-if [ -z "$1" ]; then
-    echo "Usage: $0 <password>"
-    echo "Example: $0 vSmCIlKn"
-    exit 1
-fi
-
-PASSWORD="$1"
 
 # Colors for output
 RED='\033[0;31m'
@@ -44,11 +31,34 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Get password from file or command line argument
+CREDENTIALS_FILE="$HOME/Desktop/my_credentials.txt"
+
+if [ -f "$CREDENTIALS_FILE" ]; then
+    print_status "Reading password from credentials file..."
+    PASSWORD=$(grep "Password:" "$CREDENTIALS_FILE" | cut -d' ' -f2)
+    if [ -z "$PASSWORD" ]; then
+        print_error "Could not extract password from $CREDENTIALS_FILE"
+        exit 1
+    fi
+    print_success "Password loaded from credentials file"
+else
+    # Fallback to command line argument
+    if [ -z "$1" ]; then
+        print_error "Credentials file not found at $CREDENTIALS_FILE"
+        echo "Usage: $0 <password>"
+        echo "Example: $0 vSmCIlKn"
+        exit 1
+    fi
+    PASSWORD="$1"
+    print_status "Using password from command line argument"
+fi
+
 print_status "Starting Parrot OS Development Environment Setup..."
 
 # Update system
-print_status "Updating system packages..."
-echo "$PASSWORD" | sudo -S DEBIAN_FRONTEND=noninteractive apt update && echo "$PASSWORD" | sudo -S DEBIAN_FRONTEND=noninteractive apt -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" upgrade -y
+print_status "Updating package lists..."
+echo "$PASSWORD" | sudo -S DEBIAN_FRONTEND=noninteractive apt update
 
 # Install required packages
 print_status "Installing required packages..."
