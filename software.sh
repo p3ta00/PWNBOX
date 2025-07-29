@@ -36,63 +36,31 @@ fi
 print_status "Updating package list..."
 sudo apt update
 
-# Install Rust and Cargo
-print_status "Installing Rust and Cargo..."
-if command -v cargo &> /dev/null; then
-    print_warning "Cargo is already installed"
-    cargo --version
-else
-    print_status "Installing Rust via rustup..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source ~/.cargo/env
-    print_status "Rust and Cargo installed successfully"
-    cargo --version
-fi
-
 # Install RustScan
-print_status "Installing RustScan..."
+print_status "Installing RustScan via .deb package..."
 if command -v rustscan &> /dev/null; then
     print_warning "RustScan is already installed"
     rustscan --version
 else
-    print_status "Installing RustScan..."
+    print_status "Downloading and installing RustScan .deb package..."
     
-    # Try installing from git (latest version) to avoid dependency conflicts
-    print_status "Attempting to install RustScan from git repository..."
-    if cargo install --git https://github.com/RustScan/RustScan.git rustscan; then
-        print_status "RustScan installed successfully from git"
+    TEMP_DIR=$(mktemp -d)
+    cd "$TEMP_DIR"
+    
+    RUSTSCAN_URL="https://github.com/RustScan/RustScan/releases/download/2.3.0/rustscan_2.3.0_amd64.deb"
+    
+    if curl -L -o rustscan.deb "$RUSTSCAN_URL"; then
+        print_status "Installing RustScan from .deb package..."
+        sudo dpkg -i rustscan.deb
+        sudo apt install -f -y  # Fix any dependency issues
+        print_status "RustScan installed successfully"
     else
-        print_warning "Git installation failed, trying alternative methods..."
-        
-        # Try installing a specific working version
-        print_status "Trying to install RustScan v2.3.0 (known working version)..."
-        if cargo install rustscan --version 2.3.0; then
-            print_status "RustScan v2.3.0 installed successfully"
-        else
-            print_warning "Cargo installation failed, trying .deb package..."
-            
-            # Try installing from .deb package as last resort
-            TEMP_DIR=$(mktemp -d)
-            cd "$TEMP_DIR"
-            
-            # Download the .deb package
-            RUSTSCAN_URL="https://github.com/RustScan/RustScan/releases/download/2.3.0/rustscan_2.3.0_amd64.deb"
-            print_status "Downloading RustScan .deb package..."
-            
-            if curl -L -o rustscan.deb "$RUSTSCAN_URL"; then
-                print_status "Installing RustScan from .deb package..."
-                sudo dpkg -i rustscan.deb
-                sudo apt install -f -y  # Fix any dependency issues
-                print_status "RustScan installed from .deb package"
-            else
-                print_error "All RustScan installation methods failed"
-                print_error "You may need to install RustScan manually"
-            fi
-            
-            cd - > /dev/null
-            rm -rf "$TEMP_DIR"
-        fi
+        print_error "Failed to download RustScan .deb package"
+        print_error "You may need to install RustScan manually"
     fi
+    
+    cd - > /dev/null
+    rm -rf "$TEMP_DIR"
 fi
 
 # Install Discord
@@ -209,14 +177,11 @@ fi
 echo
 print_status "Verifying installations..."
 
-echo "Cargo version:"
-cargo --version
-
 echo "RustScan version:"
 if command -v rustscan &> /dev/null; then
     rustscan --version
 else
-    print_error "RustScan not found in PATH. You may need to restart your shell or run 'source ~/.cargo/env'"
+    print_error "RustScan not found"
 fi
 
 echo "Discord:"
@@ -235,6 +200,6 @@ fi
 
 print_status "Installation script completed!"
 echo
-print_status "Note: You may need to restart your terminal or run 'source ~/.cargo/env' to use cargo tools"
 print_status "You can launch Obsidian from your applications menu or by running 'obsidian' in terminal"
 print_status "You can launch Discord from your applications menu or by running 'discord' in terminal"
+print_status "You can run RustScan by typing 'rustscan' in terminal"
