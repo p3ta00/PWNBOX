@@ -4,3 +4,4 @@
 ~/my_data/PWNBOX/tools.sh
 ~/my_data/PWNBOX/software.sh
 ~/my_data/PWNBOX/git.sh
+~/my_data/PWNBOX/burp.sh
