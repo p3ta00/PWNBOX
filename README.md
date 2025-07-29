@@ -1,6 +1,6 @@
 Store  these in your /my_data folder if your maintaining your own version. This will keep the files persistent. I believe there is an auto run script that I'm going to work on next, to provide 100% automation. 
 # install
-This will install all scripts, only use if you want everything or else just install each independantly.
+This will install all scripts, only use if you want everything or else just install each independantly. Edit this file if you do not intend to install burppro.
 ```
 ./install.sh
 ```
@@ -22,8 +22,14 @@ Update the github list (tools.txt) to add more tooling
 ```
 This will install software such as cargo and rustscan. It will also put obsidian and discord on the pwnbox. Use at your descretion because it is a pwnbox. After installation close your terminal and reopen it. I will fix this later.
 
-Git Sync
+# Burp Pro
+This is ONLY to be used if you have a valid Burp Pro License. Add your license into the script for an automated install and uninstall of burp community. This script pulls from the official Burp repo and installs the proper requirements to run Burp pro.
+```
+./burp.sh
+```
 
+# Git Sync
+This script will sync your work to a github repo, you can then do the opposidte on your host machine (not PWNBOX) to backup all of your work. 
 ```
 ./git.sh
 ```
